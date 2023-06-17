@@ -6,7 +6,7 @@ enum Importance: String {
     case important = "важная"
 }
 
-struct TodoItem {
+struct TodoItem: Equatable {
     let id: String?
     let text: String
     let importance: Importance
