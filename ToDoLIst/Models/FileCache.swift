@@ -117,8 +117,6 @@ class FileCache {
             }
             
             var rows = data.components(separatedBy: "\n")
-            
-            let columnCount = rows.first?.components(separatedBy: delimiter).count
             rows.removeFirst()
             
             var toDoList: [TodoItem] = []

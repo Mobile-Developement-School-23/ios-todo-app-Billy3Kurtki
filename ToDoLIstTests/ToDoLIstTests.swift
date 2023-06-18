@@ -9,54 +9,211 @@ import XCTest
 @testable import ToDoLIst
 
 final class ToDoLIstTests: XCTestCase {
-
+    
+    private let id = "1"
+    private let text = "Помыть машину"
+    private var importance = Importance.ordinary
+    private var deadline: Date? = Date()
+    private let isDone = false
+    private let createAt = Date()
+    private var dateEdit: Date? = Date()
+    
     // System under test
     var sut: TodoItem!
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        sut = TodoItem(id: "1", text: "test text", importance: .unimportant, deadline: (124412049140).date, isDone: false, createAt: (121412049140).date, dateEdit: (121412049140).date)
-    }
-
-    override func tearDownWithError() throws {
-        sut = nil
-        try super.tearDownWithError()
+    
+    override func setUp() {
+        super.setUp()
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
     }
     
-    func testParseJSON1() throws {
-        let json: [String: Any] = ["id": "1", "text": "test text", "importance": "неважная", "deadline": "124412049140", "isDone": "false", "createAt": "121412049140", "dateEdit": "121412049140"]
-        XCTAssert(TodoItem.parse(json: json) == sut)
-    }
-
-    func testParseJSON2() throws {
-        XCTAssert(TodoItem.parse(json: sut.json) == sut)
-    }
-    
-    func testParseJSON3WithError() throws {
-        let json: [String: Any] = ["id": "1", "text": "test text", "importance": "неважная", "deadline": "124412049140", "createAt": "121412049140", "dateEdit": "121412049140"] // removed isDone
-        XCTAssertEqual(TodoItem.parse(json: json), nil)
+    func testCreateTodoItemWithoutInvalidValues() {
+        XCTAssertEqual(sut.id, id)
+        XCTAssertEqual(sut.text, text)
+        XCTAssertEqual(sut.importance, importance)
+        XCTAssertEqual(sut.deadline, deadline)
+        XCTAssertEqual(sut.isDone, isDone)
+        XCTAssertEqual(sut.createAt, createAt)
+        XCTAssertEqual(sut.dateEdit, dateEdit)
     }
     
-    func testParseCSV1() throws {
-        let csv: String = "1;test text;неважная;124412049140;false;121412049140;121412049140;"
-        XCTAssert(TodoItem.parse(csv: csv) == sut)
-    }
-
-    func testParseCSV2() throws {
-        XCTAssert(TodoItem.parse(csv: sut.csv) == sut)
+    func testCreateTodoItemWithInvalidValues() {
+        sut = TodoItem(
+            id: id,
+            text: "",
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        XCTAssertEqual(sut.id, id)
+        XCTAssertFalse(sut.text == text)
+        XCTAssertEqual(sut.importance, importance)
+        XCTAssertEqual(sut.deadline, deadline)
+        XCTAssertEqual(sut.isDone, isDone)
+        XCTAssertEqual(sut.createAt, createAt)
+        XCTAssertEqual(sut.dateEdit, dateEdit)
     }
     
-    func testParseCSV3WithError() throws {
-        let csv: String = "1;test text;неважная;124412049140;;121412049140;121412049140;" // removed isDone
-        XCTAssertEqual(TodoItem.parse(csv: csv), nil)
-    }
-    
-    
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testTodoItemToJSON() {
+        guard let json = sut.json as? [String: Any] else {
+            XCTFail("Ошибка конвертации в JSON")
+            return
         }
+        
+        XCTAssertEqual(json["deadline"] as? Int, sut.deadline?.unixTimestamp)
+        XCTAssertEqual(json["createAt"] as? Int, sut.createAt.unixTimestamp)
+        XCTAssertEqual(json["dateEdit"] as? Int, sut.dateEdit?.unixTimestamp)
     }
-
+    
+    func testTodoItemToJSONWithNilValues() {
+        deadline = nil
+        dateEdit = nil
+        
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        guard let json = sut.json as? [String: Any] else {
+            XCTFail("Ошибка конвертации в JSON")
+            return
+        }
+        
+        XCTAssertEqual(json["deadline"] as? Int, nil)
+        XCTAssertEqual(json["dateEdit"] as? Int, nil)
+    }
+    
+    func testTodoItemToJSONWithOrdinaryImportance() {
+        importance = Importance.ordinary
+        
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        guard let json = sut.json as? [String: Any] else {
+            XCTFail("Ошибка конвертации в JSON")
+            return
+        }
+        
+        XCTAssertNil(json["importance"])
+    }
+    
+    func testTodoItemToJSONWithoutOrdinaryImportance() {
+        importance = Importance.unimportant
+        
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        guard let json = sut.json as? [String: Any] else {
+            XCTFail("Ошибка конвертации в JSON")
+            return
+        }
+        
+        XCTAssertNotNil(json["importance"])
+        XCTAssertEqual(json["importance"] as? String, importance.rawValue)
+    }
+    
+    func testParseJSONWithoutFields() {
+        let json: [String: Any] = [:]
+        
+        let sut = TodoItem.parse(json: json)
+        XCTAssertNil(sut)
+    }
+    
+    func testTodoItemToCSV() {
+        let csv = sut.csv
+        let item = csv.components(separatedBy: TodoItem.delimiter)
+        XCTAssertEqual(item[0], sut.id)
+        XCTAssertEqual(item[1], sut.text)
+        XCTAssertEqual(item[2], "")
+        XCTAssertEqual(item[3], String(sut.deadline?.unixTimestamp ?? 0))
+        XCTAssertEqual(item[4], String(sut.isDone))
+        XCTAssertEqual(item[5], String(sut.createAt.unixTimestamp))
+        XCTAssertEqual(item[6], String(sut.dateEdit?.unixTimestamp ?? 0))
+    }
+    
+    func testTodoItemToCSVWithNilValues() {
+        deadline = nil
+        dateEdit = nil
+        
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        let csv = sut.csv
+        let item = csv.components(separatedBy: TodoItem.delimiter)
+        XCTAssertEqual(item[3], "")
+        XCTAssertEqual(item[6], "")
+    }
+    
+    func testTodoItemToCSVWithOrdinaryImportance() {
+        importance = Importance.ordinary
+        
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        let csv = sut.csv
+        let item = csv.components(separatedBy: TodoItem.delimiter)
+        XCTAssertEqual(item[2], "")
+    }
+    
+    func testTodoItemToCSVWithoutOrdinaryImportance() {
+        importance = Importance.unimportant
+        
+        sut = TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: deadline,
+            isDone: isDone,
+            createAt: createAt,
+            dateEdit: dateEdit
+        )
+        let csv = sut.csv
+        let item = csv.components(separatedBy: TodoItem.delimiter)
+        XCTAssertEqual(item[2], sut.importance.rawValue)
+    }
+    
+    func testParseCSVWithoutFields() {
+        let csv: String = ""
+        
+        let sut = TodoItem.parse(csv: csv)
+        XCTAssertNil(sut)
+    }
+    
 }

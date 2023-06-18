@@ -121,17 +121,17 @@ extension TodoItem {
         toDoItem.append(TodoItem.delimiter)
         toDoItem.append("\(text);")
         if importance != Importance.ordinary  {
-            toDoItem.append("\(importance)")
+            toDoItem.append("\(importance.rawValue)")
         }
         toDoItem.append(TodoItem.delimiter)
         if let deadline = deadline {
-            toDoItem.append("\(deadline)")
+            toDoItem.append("\(deadline.unixTimestamp)")
         }
         toDoItem.append(TodoItem.delimiter)
         toDoItem.append("\(isDone);")
-        toDoItem.append("\(createAt);")
+        toDoItem.append("\(createAt.unixTimestamp);")
         if let dateEdit = dateEdit {
-            toDoItem.append("\(dateEdit)")
+            toDoItem.append("\(dateEdit.unixTimestamp)")
         }
         toDoItem.append(TodoItem.delimiter)
         
