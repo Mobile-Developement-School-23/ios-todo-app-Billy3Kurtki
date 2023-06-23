@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  uikitTodoList
+//  TodoList
 //
 //  Created by Кирилл Казаков on 21.06.2023.
 //

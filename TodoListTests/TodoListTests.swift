@@ -1,12 +1,5 @@
-//
-//  ToDoLIstTests.swift
-//  ToDoLIstTests
-//
-//  Created by Кирилл Казаков on 10.06.2023.
-//
-
 import XCTest
-@testable import ToDoLIst
+@testable import TodoList
 
 final class ToDoLIstTests: XCTestCase {
     
