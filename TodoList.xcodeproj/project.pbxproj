@@ -18,6 +18,7 @@
 		08335AA52A4345A900769A20 /* TodoListUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08335AA42A4345A900769A20 /* TodoListUITestsLaunchTests.swift */; };
 		08335AB32A4345BC00769A20 /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08335AB22A4345BC00769A20 /* FileCache.swift */; };
 		08335AB52A4345C600769A20 /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08335AB42A4345C600769A20 /* TodoItem.swift */; };
+		08335AB92A469C5700769A20 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08335AB82A469C5700769A20 /* SecondViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		08335AA42A4345A900769A20 /* TodoListUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		08335AB22A4345BC00769A20 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		08335AB42A4345C600769A20 /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
+		08335AB82A469C5700769A20 /* SecondViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SecondViewController.swift; path = ToDoLIst/SecondViewController.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 				08335A812A4345A700769A20 /* AppDelegate.swift */,
 				08335A832A4345A700769A20 /* SceneDelegate.swift */,
 				08335A852A4345A700769A20 /* ViewController.swift */,
+				08335AB82A469C5700769A20 /* SecondViewController.swift */,
 				08335A872A4345A700769A20 /* Main.storyboard */,
 				08335A8A2A4345A900769A20 /* Assets.xcassets */,
 				08335A8C2A4345A900769A20 /* LaunchScreen.storyboard */,
@@ -272,6 +275,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08335AB92A469C5700769A20 /* SecondViewController.swift in Sources */,
 				08335AB52A4345C600769A20 /* TodoItem.swift in Sources */,
 				08335A862A4345A700769A20 /* ViewController.swift in Sources */,
 				08335A822A4345A700769A20 /* AppDelegate.swift in Sources */,
