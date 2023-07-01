@@ -1,4 +1,5 @@
 import Foundation
+import CocoaLumberjackSwift
 
 class FileCache {
     private(set) var toDoList: [TodoItem] = []
@@ -23,15 +24,15 @@ class FileCache {
             let documentDirectory = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
             let fileUrl = documentDirectory.appendingPathComponent("\(fileName)").appendingPathExtension("json")
             if FileManager.default.fileExists(atPath: fileUrl.path) {
-                print("Файл существует")
+                DDLogInfo("Файл существует")
                 try jsonData.write(to: fileUrl)
                 
             } else {
-                print("Файл не существует")
+                DDLogError("Файл не существует")
                 try jsonData.write(to: fileUrl)
             }
         } catch {
-            print("Ошибка создания JSONdata")
+            DDLogError("Ошибка создания JSONdata")
             return
         }
     }
@@ -47,19 +48,19 @@ class FileCache {
                 do {
                     data = try Data(contentsOf: URL(filePath: fileUrl.path()))
                 } catch {
-                    print("Ошибка получения Data: \(error.localizedDescription)")
+                    DDLogError("Ошибка получения Data: \(error.localizedDescription)")
                     return
                 }
             }
             
             guard let dataExist = data else {
-                print("Ошибка")
+                DDLogError("Ошибка")
                 return
             }
             
             guard let dict = try? JSONSerialization.jsonObject(with: dataExist, options: .allowFragments) as? [[String: Any]] else
             {
-                print("Ошибка... [String: Any]")
+                DDLogError("Ошибка... [String: Any]")
                 return
             }
             
@@ -89,15 +90,15 @@ class FileCache {
             let documentDirectory = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
             let fileUrl = documentDirectory.appendingPathComponent("\(fileName)").appendingPathExtension("csv")
             if FileManager.default.fileExists(atPath: fileUrl.path) {
-                print("Файл существует")
+                DDLogInfo("Файл существует")
                 try csvString.write(to: fileUrl, atomically: true, encoding: String.Encoding.utf8)
                 
             } else {
-                print("Файл не существует")
+                DDLogError("Файл не существует")
                 try csvString.write(to: fileUrl, atomically: true, encoding: String.Encoding.utf8)
             }
         } catch {
-            print("Ошибка создания CSV файла")
+            DDLogError("Ошибка создания CSV файла")
             return
         }
     }
@@ -111,7 +112,7 @@ class FileCache {
                 do {
                     data = try String(contentsOfFile: fileUrl.path())
                 } catch {
-                    print("Ошибка получения данных из CSV файла")
+                    DDLogError("Ошибка получения данных из CSV файла")
                     return
                 }
             }
@@ -128,7 +129,7 @@ class FileCache {
             
             self.toDoList = toDoList
         } catch {
-            print("Ошибка получения данных из CSV файла: \(error.localizedDescription)")
+            DDLogError("Ошибка получения данных из CSV файла: \(error.localizedDescription)")
         }
     }
 }
