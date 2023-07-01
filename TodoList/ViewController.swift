@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CocoaLumberjackSwift
 
 class ViewController: UIViewController {
     var todoItem1 = TodoItem(
@@ -77,6 +78,13 @@ class ViewController: UIViewController {
     var countDone: Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        DDLog.add(DDOSLogger.sharedInstance)
+
+        let fileLogger: DDFileLogger = DDFileLogger()
+        fileLogger.rollingFrequency = 60 * 60 * 24
+        fileLogger.logFileManager.maximumNumberOfLogFiles = 7
+        DDLog.add(fileLogger)
         
         filecache.addItem(todoItem1)
         filecache.addItem(todoItem2)

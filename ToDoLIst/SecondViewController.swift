@@ -6,15 +6,12 @@
 //
 
 import UIKit
+import CocoaLumberjackSwift
 
 class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCellDelegate {
     var item: TodoItem?
-    var filecache: FileCache
-    var vc: ViewController
     init(item: TodoItem? = nil) {
         self.item = item
-        self.filecache = FileCache()
-        self.vc = ViewController()
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -219,12 +216,13 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
 //        }
         alertController.addAction(alertAction)
         self.present(alertController, animated: true)
+        DDLogInfo("Выполнено сохранение.")
     }
     
     @objc func deleteButtonAction(_ sender: Any) {
         if let item = item {
             // доделаю
-            print("удалено")
+            DDLogInfo("Удаление прошло успешно!")
             dismiss(animated: true)
         }
         else {
@@ -232,6 +230,7 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
             let alertAction = UIAlertAction(title: "OK", style: .default)
             alertController.addAction(alertAction)
             self.present(alertController, animated: true)
+            DDLogError("Ошибка удаления задачи!")
         }
 
         
