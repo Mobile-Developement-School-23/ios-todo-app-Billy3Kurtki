@@ -8,8 +8,6 @@
 import UIKit
 
 class ViewController: UIViewController {
-
-   
     var todoItem1 = TodoItem(
         id: "1",
         text: "Помыть машину",
@@ -29,6 +27,18 @@ class ViewController: UIViewController {
         createAt: Date(),
         dateEdit: Date()
     )
+    
+    var todoItem3 = TodoItem(
+        id: "3",
+        text: "Купить сыр",
+        importance: Importance.ordinary,
+        deadline: nil,
+        isDone: false,
+        createAt: Date(),
+        dateEdit: Date()
+    )
+    var listAll: [TodoItem] = []
+    var listIsNotDone: [TodoItem] = []
     var flag = false
     var collection: [TodoItem] = []
     
@@ -40,6 +50,7 @@ class ViewController: UIViewController {
     let tableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
+//        table.backgroundColor = UIColor(named: "Background")
         return table
     }()
     
@@ -48,7 +59,7 @@ class ViewController: UIViewController {
         let smallConfig = UIImage.SymbolConfiguration(pointSize: 22, weight: .bold, scale: .large)
         let largeBoldDoc = UIImage(systemName: "plus", withConfiguration: smallConfig)
         button.setImage(largeBoldDoc, for: .normal)
-        button.backgroundColor = UIColor.blue
+        button.backgroundColor = UIColor(named: "PlusButton")
         button.tintColor = UIColor.white
         button.layer.cornerRadius = 26
         button.clipsToBounds = true
@@ -60,18 +71,23 @@ class ViewController: UIViewController {
         return button
     }()
     
-    let data = ["Work1", "Work2", "Work3", "Work4", "Work5", "Work6", "Work7", "Work8", "Work9", "Work10", "Work11"]
     let identifier = "cell"
     
     var filecache = FileCache()
+    var countDone: Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         
         filecache.addItem(todoItem1)
         filecache.addItem(todoItem2)
+        filecache.addItem(todoItem3)
         filecache.saveAllJsonFile(fileName: "jsonfile")
         filecache.getAllFromJson(fileName: "jsonfile")
-        
+//        print(filecache.toDoList[0])
+//        print(filecache.toDoList[1])
+//        print(filecache.toDoList[2])
+        updateListIsNotDone()
+        updateAll()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(titleLabel)
         
@@ -83,7 +99,7 @@ class ViewController: UIViewController {
         
         doneTasksLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(doneTasksLabel)
-        let countDone = filecache.toDoList.filter({$0.isDone == true}).count
+        countDone = filecache.toDoList.filter({$0.isDone == true}).count
         doneTasksLabel.text = "Выполнено - \(countDone)"
         doneTasksLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 34).isActive = true
         doneTasksLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 55).isActive = true
@@ -96,7 +112,7 @@ class ViewController: UIViewController {
         showDoneTasksButton.setTitle("Показать", for: .normal)
         
         showDoneTasksButton.addGestureRecognizer(tapRecognizer)
-        showDoneTasksButton.setTitleColor(UIColor.blue, for: .normal)
+        showDoneTasksButton.setTitleColor(UIColor(named: "PlusButton"), for: .normal)
         showDoneTasksButton.leadingAnchor.constraint(equalTo: doneTasksLabel.trailingAnchor, constant: 110).isActive = true
         showDoneTasksButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15).isActive = true
         showDoneTasksButton.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 55).isActive = true
@@ -106,15 +122,16 @@ class ViewController: UIViewController {
         tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15.0).isActive = true
         tableView.topAnchor.constraint(equalTo: doneTasksLabel.bottomAnchor, constant: 10).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15.0).isActive = true
-        tableView.heightAnchor.constraint(equalToConstant: heightForRow * 3).isActive = true
-//        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0.0).isActive = true
-        tableView.layer.cornerRadius = 20
+        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        
+//        tableView.layer.cornerRadius = 20
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorInset = .init(top: 20, left: 65, bottom: 20, right: 0)
         tableView.register(CustomCell.self, forCellReuseIdentifier: identifier)
-        
-        
+        tableView.backgroundColor = UIColor(named: "Background")
+        tableView.layer.cornerRadius = 20
+        tableView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         
         self.view.addSubview(addButton)
         addButton.translatesAutoresizingMaskIntoConstraints = false
@@ -124,15 +141,8 @@ class ViewController: UIViewController {
         addButton.centerXAnchor.constraint(equalTo: self.tableView.centerXAnchor).isActive = true
         addButton.addTarget(self, action: #selector(self.showCreateView(sender: )), for:.touchUpInside)
         
-        self.view.backgroundColor = UIColor.gray
+        self.view.backgroundColor = UIColor(named: "Background")
     }
-
-
-    @objc func btnAction() {
-
-    }
-    
-    func tappedCell() {}
     
     @objc func handleShowDoneTasks(sender: UITapGestureRecognizer) {
         flag.toggle()
@@ -145,6 +155,19 @@ class ViewController: UIViewController {
         tableView.reloadData()
     }
     
+    func updateListIsNotDone() {
+        listIsNotDone = filecache.toDoList.filter({$0.isDone == false})
+    }
+    
+    func updateAll() {
+        listAll = filecache.toDoList
+    }
+    
+    func updateData() {
+        updateListIsNotDone()
+        updateAll()
+        tableView.reloadData()
+    }
 }
 
 extension ViewController: UITableViewDelegate {
@@ -156,86 +179,173 @@ extension ViewController: UITableViewDelegate {
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if !flag {
-            return filecache.toDoList.filter({$0.isDone == false}).count
+            return listIsNotDone.count
         }
         else {
-            return filecache.toDoList.count
+            return listAll.count
         }
-//        if !flag {
-//            let listCount = filecache.toDoList.filter({$0.isDone == false}).count
-//            tableView.heightAnchor.constraint(equalToConstant: heightForRow * CGFloat(listCount)).isActive = true
-//            tableView.updateConstraints()
-//            return listCount
-//        }
-//        else {
-//            let listCount = filecache.toDoList.count
-//            tableView.heightAnchor.constraint(equalToConstant: heightForRow * CGFloat(listCount)).isActive = true
-//            tableView.updateConstraints()
-//            return listCount
-//        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomCell
-        if filecache.toDoList[indexPath.row].isDone {
-            cell.circleImage.image = UIImage(systemName: "checkmark.circle.fill")
-            cell.circleImage.backgroundColor = UIColor.white
-            cell.circleImage.tintColor = UIColor.green
-            let attributedText = NSAttributedString(
-                string: filecache.toDoList[indexPath.row].text,
-                attributes: [.strikethroughStyle: NSUnderlineStyle.single.rawValue]
-            )
-            cell.taskLabel.attributedText = attributedText
-            cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 18).isActive = true
-            cell.dateLabel.isHidden = true
-            cell.calendarImage.isHidden = true
-        }
-        else {
-            if filecache.toDoList[indexPath.row].importance == Importance.important {
-                cell.circleImage.image = UIImage(systemName: "circle")
+        if !flag {
+            if indexPath.row == listIsNotDone.count - 1 {
+                cell.layer.cornerRadius = 20
+                cell.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            }
+            cell.circleImage.image = UIImage(systemName: "circle")
+            if listIsNotDone[indexPath.row].importance == Importance.important {
                 cell.circleImage.tintColor = UIColor.red
+                cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                cell.dateLabel.isHidden = true
+                cell.calendarImage.isHidden = true
             }
             else {
-                cell.circleImage.image = UIImage(systemName: "circle")
                 cell.circleImage.tintColor = UIColor.gray
+                
+                if let deadline = listIsNotDone[indexPath.row].deadline {
+                    let dateStringFormatter = DateFormatter()
+                    dateStringFormatter.dateFormat = "dd MMMM"
+                    dateStringFormatter.locale = Locale(identifier: "ru_RU")
+                    cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+                    cell.dateLabel.text = dateStringFormatter.string(for: deadline)
+                    cell.dateLabel.isHidden = false
+                    cell.calendarImage.isHidden = false
+                }
+                else {
+                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                    cell.dateLabel.isHidden = true
+                    cell.calendarImage.isHidden = true
+                }
             }
-            cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
-            cell.taskLabel.text = filecache.toDoList[indexPath.row].text
+            let attributedText = NSAttributedString(
+                string: listIsNotDone[indexPath.row].text,
+                attributes: nil
+            )
+            cell.taskLabel.attributedText = attributedText
+
+            cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+            cell.button.tintColor = UIColor.gray
+            return cell
+        }
+        else {
+            if listAll[indexPath.row].isDone {
+                cell.circleImage.image = UIImage(systemName: "checkmark.circle.fill")
+                cell.circleImage.backgroundColor = UIColor.white
+                cell.circleImage.tintColor = UIColor(named: "Green")
+                let attributedText = NSAttributedString(
+                    string: listAll[indexPath.row].text,
+                    attributes: [.strikethroughStyle: NSUnderlineStyle.single.rawValue]
+                )
+                cell.taskLabel.attributedText = attributedText
+                cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                cell.dateLabel.isHidden = true
+                cell.calendarImage.isHidden = true
+            }
+            else {
+                if listAll[indexPath.row].importance == Importance.important {
+                    cell.circleImage.image = UIImage(systemName: "circle")
+                    cell.circleImage.tintColor = UIColor.red
+                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                    cell.dateLabel.isHidden = true
+                    cell.calendarImage.isHidden = true
+                }
+                else {
+                    cell.circleImage.image = UIImage(systemName: "circle")
+                    cell.circleImage.tintColor = UIColor.gray
+                    
+                    if let deadline = listAll[indexPath.row].deadline {
+                        let dateStringFormatter = DateFormatter()
+                        dateStringFormatter.dateFormat = "dd MMMM"
+                        dateStringFormatter.locale = Locale(identifier: "ru_RU")
+                        cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+                        cell.dateLabel.text = dateStringFormatter.string(for: deadline)
+                        cell.dateLabel.isHidden = false
+                        cell.calendarImage.isHidden = false
+                    }
+                    else {
+                        cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                        cell.dateLabel.isHidden = true
+                        cell.calendarImage.isHidden = true
+                    }
+                }
+                let attributedText = NSAttributedString(
+                    string: listAll[indexPath.row].text,
+                    attributes: nil
+                )
+                cell.taskLabel.attributedText = attributedText
+
+            }
+            cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+            cell.button.tintColor = UIColor.gray
+            return cell
         }
         
-        cell.taskLabel.text = filecache.toDoList[indexPath.row].text
-        if let deadline = filecache.toDoList[indexPath.row].deadline {
-            let dateStringFormatter = DateFormatter()
-            dateStringFormatter.dateFormat = "dd MMMM"
-            dateStringFormatter.locale = Locale(identifier: "ru_RU")
-            cell.dateLabel.text = dateStringFormatter.string(for: deadline)
-        }
-        cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-        cell.button.tintColor = UIColor.gray
-        return cell
     }
     
-    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        tappedCell()
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-//            objects.remove(at: indexPath.row)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            
-        }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        showDetails(filecache.toDoList[indexPath.row])
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        return UISwipeActionsConfiguration(actions: [
-//            tappedCell(forRowAt: indexPath)
-        ])
+        let doneAction = UIContextualAction(style: .normal, title: "") { (action, view, bool) in
+            let item = self.filecache.toDoList[indexPath.row]
+            let todoItem = TodoItem(
+                id: item.id,
+                text: item.text,
+                importance: item.importance,
+                deadline: item.deadline,
+                isDone: true,
+                createAt: item.createAt,
+                dateEdit: item.dateEdit
+            )
+            self.filecache.addItem(todoItem)
+            self.updateListIsNotDone()
+            self.updateAll()
+            tableView.reloadData()
+            self.countDone = self.filecache.toDoList.filter({$0.isDone == true}).count
+            self.doneTasksLabel.text = "Выполнено - \(self.countDone)"
+        }
+        doneAction.image = UIImage(systemName: "checkmark.circle.fill")
+        doneAction.image?.withTintColor(UIColor.white)
+        doneAction.backgroundColor = UIColor(named: "Green")
+        
+        return UISwipeActionsConfiguration(actions: [doneAction])
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .normal, title: "") { (action, view, bool) in
+            if !self.flag {
+                let id = self.listIsNotDone[indexPath.row].id
+                self.filecache.deleteItem(id)
+                self.updateData()
+            }
+            else {
+                let id = self.listAll[indexPath.row].id
+                self.filecache.deleteItem(id)
+                self.updateData()
+            }
+            
+        }
+        deleteAction.image = UIImage(systemName: "trash")
+        deleteAction.image?.withTintColor(UIColor.white)
+        deleteAction.backgroundColor = UIColor(named: "Red")
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
     
     @objc func showCreateView(sender: Any) {
         let secondVC = SecondViewContoller()
+        if let sheet = secondVC.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.preferredCornerRadius = 20
+            sheet.prefersEdgeAttachedInCompactHeight = true
+        }
+        present(secondVC, animated: true)
+    }
+    
+    func showDetails(_ item: TodoItem) {
+        let secondVC = SecondViewContoller(item: item)
         if let sheet = secondVC.sheetPresentationController {
             sheet.detents = [.large()]
             sheet.preferredCornerRadius = 20
