@@ -343,7 +343,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     @objc func showCreateView(sender: Any) {
-        let secondVC = SecondViewContoller()
+        let secondVC = SecondViewContoller(viewController: self)
         if let sheet = secondVC.sheetPresentationController {
             sheet.detents = [.large()]
             sheet.preferredCornerRadius = 20
@@ -353,7 +353,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     func showDetails(_ item: TodoItem) {
-        let secondVC = SecondViewContoller(item: item)
+        let secondVC = SecondViewContoller(item: item, viewController: self)
         if let sheet = secondVC.sheetPresentationController {
             sheet.detents = [.large()]
             sheet.preferredCornerRadius = 20

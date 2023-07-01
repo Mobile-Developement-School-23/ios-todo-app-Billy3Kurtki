@@ -10,8 +10,10 @@ import CocoaLumberjackSwift
 
 class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCellDelegate {
     var item: TodoItem?
-    init(item: TodoItem? = nil) {
+    var viewContoller: ViewController
+    init(item: TodoItem? = nil, viewController: ViewController) {
         self.item = item
+        self.viewContoller = viewController
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -144,7 +146,7 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
         let cell2 = tableView.cellForRow(at: IndexPath(row: 2, section: 0))
         let calendarCell = cell2 as! CalendarCell
         if switcherCell.switcher.isOn == true {
-//            switcherCell.label.topAnchor.constraint(equalTo: switcherCell.contentView.topAnchor, constant: 20).isActive = true
+            switcherCell.label.topAnchor.constraint(equalTo: switcherCell.contentView.topAnchor, constant: 20).isActive = true
             //В этом условии не работают констреинты (но в else работают), пока не разобрался почему.
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "d MMMM yyyy"
@@ -222,7 +224,8 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
     
     @objc func deleteButtonAction(_ sender: Any) {
         if let item = item {
-            // доделаю
+            viewContoller.filecache.deleteItem(item.id)
+            viewContoller.updateData()
             DDLogInfo("Удаление прошло успешно!")
             dismiss(animated: true)
         }
