@@ -144,7 +144,8 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
         let cell2 = tableView.cellForRow(at: IndexPath(row: 2, section: 0))
         let calendarCell = cell2 as! CalendarCell
         if switcherCell.switcher.isOn == true {
-//            switcherCell.label.topAnchor.constraint(equalTo: switcherCell.contentView.topAnchor, constant: 20).isActive = true В этом условии не работают констреинты (но в else работают), пока не разобрался почему.
+//            switcherCell.label.topAnchor.constraint(equalTo: switcherCell.contentView.topAnchor, constant: 20).isActive = true
+            //В этом условии не работают констреинты (но в else работают), пока не разобрался почему.
             let dateStringFormatter = DateFormatter()
             dateStringFormatter.dateFormat = "d MMMM yyyy"
             dateStringFormatter.locale = Locale(identifier: "ru_RU")
