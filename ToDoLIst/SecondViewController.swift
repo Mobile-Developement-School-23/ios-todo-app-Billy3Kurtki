@@ -9,6 +9,8 @@ import UIKit
 import CocoaLumberjackSwift
 
 class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCellDelegate {
+    
+    
     var item: TodoItem?
     var viewContoller: ViewController
     init(item: TodoItem? = nil, viewController: ViewController) {
@@ -146,6 +148,7 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
         let cell2 = tableView.cellForRow(at: IndexPath(row: 2, section: 0))
         let calendarCell = cell2 as! CalendarCell
         if switcherCell.switcher.isOn == true {
+            
             switcherCell.label.topAnchor.constraint(equalTo: switcherCell.contentView.topAnchor, constant: 20).isActive = true
             //В этом условии не работают констреинты (но в else работают), пока не разобрался почему.
             let dateStringFormatter = DateFormatter()
@@ -163,6 +166,7 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
             calendarCell.calendarView.isHidden = true
             calendarCell.backgroundColor = UIColor(named: "Background")
 //            deleteButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -350).isActive = true
+            switcherCell.dateLabel.text = ""
             switcherCell.dateLabel.isHidden = true
         }
     }
@@ -198,9 +202,31 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
         }
     }
     
+    func onTapSaveButton() -> TodoItem {
+        let cell0 = tableView.cellForRow(at: IndexPath(row: 0, section: 0))
+        let importanceSG = cell0 as! ImportanceSegControlCell
+        let cell1 = tableView.cellForRow(at: IndexPath(row: 1, section: 0))
+        let switcherCell = cell1 as! DateSwitcherCell
+        let text = textView.text!
+        var importance: Importance
+        //var deadline: Date?
+        switch importanceSG.importanceSwitcher.selectedSegmentIndex {
+        case 0:
+            importance = Importance.unimportant
+        case 2:
+            importance = Importance.important
+        default:
+            importance = Importance.ordinary
+        }
+//        if switcherCell.dateLabel.text != "" {
+//            deadline = Date(switcherCell.dateLabel.text!)
+//        }
+        return TodoItem(id: item!.id,text: text, importance: importance)
+    }
+    
     @objc func saveButtonAction(_ sender: Any) {
-        let alertController = UIAlertController(title: "Уведомление", message: "Сохранение прошло успешно", preferredStyle: .alert)
-        let alertAction = UIAlertAction(title: "OK", style: .default)
+//        let alertController = UIAlertController(title: "Уведомление", message: "Сохранение прошло успешно", preferredStyle: .alert)
+//        let alertAction = UIAlertAction(title: "OK", style: .default)
         //доделаю
 //        var todoItem: TodoItem
 //        if let item = item {
@@ -217,8 +243,11 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
 //        else {
 //
 //        }
-        alertController.addAction(alertAction)
-        self.present(alertController, animated: true)
+        viewContoller.filecache.addItem(onTapSaveButton())
+        viewContoller.updateData()
+        dismiss(animated: true)
+//        alertController.addAction(alertAction)
+//        self.present(alertController, animated: true)
         DDLogInfo("Выполнено сохранение.")
     }
     
@@ -343,7 +372,6 @@ class ImportanceSegControlCell: UITableViewCell {
         
         importanceSwitcher.insertSegment(with: UIImage(systemName: "arrow.down"), at: 0, animated: true)
         importanceSwitcher.insertSegment(withTitle: "нет", at: 1, animated: true)
-//        var attributedString = NSAttributedString(string: "!!", attributes: [.foregroundColor: UIColor(named: "Red"), .font: UIFont(name: .localizedName(of: .utf8), size: 14)])
         importanceSwitcher.insertSegment(withTitle: "!!", at: 2, animated: true)
         importanceSwitcher.selectedSegmentIndex = 1
         importanceSwitcher.backgroundColor = UIColor(named: "BackgroundSG")
@@ -365,6 +393,7 @@ class ImportanceSegControlCell: UITableViewCell {
 
 protocol DateSwitcherCellDelegate: AnyObject {
     func onSwitchCellEvent()
+    func onTapSaveButton() -> TodoItem
 }
 
 class DateSwitcherCell: UITableViewCell {

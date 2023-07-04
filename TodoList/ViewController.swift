@@ -9,11 +9,16 @@ import UIKit
 import CocoaLumberjackSwift
 
 class ViewController: UIViewController {
+    private func setupNavBar() {
+        self.navigationItem.title = "Мои дела"
+        self.navigationController?.navigationBar.prefersLargeTitles = true
+        self.navigationController?.navigationBar.directionalLayoutMargins.leading = 32
+    }
     var todoItem1 = TodoItem(
         id: "1",
         text: "Помыть машину",
         importance: Importance.important,
-        deadline: Date(),
+        deadline: nil,
         isDone: false,
         createAt: Date(),
         dateEdit: Date()
@@ -24,20 +29,20 @@ class ViewController: UIViewController {
         text: "Убраться в доме",
         importance: Importance.unimportant,
         deadline: Date(),
-        isDone: true,
-        createAt: Date(),
-        dateEdit: Date()
-    )
-    
-    var todoItem3 = TodoItem(
-        id: "3",
-        text: "Купить сыр",
-        importance: Importance.ordinary,
-        deadline: nil,
         isDone: false,
         createAt: Date(),
         dateEdit: Date()
     )
+    
+    var todoItem3 = TodoItem(id: "3",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem4 = TodoItem(id: "4",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem5 = TodoItem(id: "5",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem6 = TodoItem(id: "6",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem7 = TodoItem(id: "7",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem8 = TodoItem(id: "8",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem9 = TodoItem(id: "9",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem10 = TodoItem(id: "10",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem11 = TodoItem(id: "11",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
     var listAll: [TodoItem] = []
     var listIsNotDone: [TodoItem] = []
     var flag = false
@@ -78,7 +83,9 @@ class ViewController: UIViewController {
     var countDone: Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupNavBar()
+        self.navigationItem.largeTitleDisplayMode = .never
+        self.navigationController?.navigationBar.prefersLargeTitles = true
         DDLog.add(DDOSLogger.sharedInstance)
 
         let fileLogger: DDFileLogger = DDFileLogger()
@@ -89,11 +96,16 @@ class ViewController: UIViewController {
         filecache.addItem(todoItem1)
         filecache.addItem(todoItem2)
         filecache.addItem(todoItem3)
+        filecache.addItem(todoItem4)
+        filecache.addItem(todoItem5)
+        filecache.addItem(todoItem6)
+        filecache.addItem(todoItem7)
+        filecache.addItem(todoItem8)
+        filecache.addItem(todoItem9)
+        filecache.addItem(todoItem10)
+        filecache.addItem(todoItem11)
         filecache.saveAllJsonFile(fileName: "jsonfile")
         filecache.getAllFromJson(fileName: "jsonfile")
-//        print(filecache.toDoList[0])
-//        print(filecache.toDoList[1])
-//        print(filecache.toDoList[2])
         updateListIsNotDone()
         updateAll()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -109,6 +121,8 @@ class ViewController: UIViewController {
         self.view.addSubview(doneTasksLabel)
         countDone = filecache.toDoList.filter({$0.isDone == true}).count
         doneTasksLabel.text = "Выполнено - \(countDone)"
+        doneTasksLabel.textColor = UIColor.lightGray
+        doneTasksLabel.font = .systemFont(ofSize: 16)
         doneTasksLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 34).isActive = true
         doneTasksLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 55).isActive = true
         doneTasksLabel.widthAnchor.constraint(equalToConstant: 120).isActive = true
@@ -126,7 +140,7 @@ class ViewController: UIViewController {
         showDoneTasksButton.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 55).isActive = true
         
         self.view.addSubview(tableView)
-        
+        tableView.largeContentTitle = "Мои дела"
         tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15.0).isActive = true
         tableView.topAnchor.constraint(equalTo: doneTasksLabel.bottomAnchor, constant: 10).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15.0).isActive = true
@@ -196,45 +210,51 @@ extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomCell
+        let dateStringFormatter = DateFormatter()
+        dateStringFormatter.dateFormat = "d MMMM"
+        dateStringFormatter.locale = Locale(identifier: "ru_RU")
+        cell.circleImage.image = UIImage(systemName: "circle")
         if !flag {
-            if indexPath.row == listIsNotDone.count - 1 {
-                cell.layer.cornerRadius = 20
-                cell.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-            }
-            cell.circleImage.image = UIImage(systemName: "circle")
-            if listIsNotDone[indexPath.row].importance == Importance.important {
-                cell.circleImage.tintColor = UIColor.red
-                cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                cell.dateLabel.isHidden = true
-                cell.calendarImage.isHidden = true
+            let attributedText = NSAttributedString(string: listAll[indexPath.row].text)
+            cell.taskLabel.attributedText = attributedText
+            if let deadline = listIsNotDone[indexPath.row].deadline {
+                let attributedText = NSAttributedString(string: dateStringFormatter.string(from: deadline))
+                cell.dateLabel.attributedText = attributedText
+                cell.dateLabel.isHidden = false
+                cell.calendarImage.isHidden = false
+                cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+                cell.importanceLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
+                cell.impotranceImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
             }
             else {
-                cell.circleImage.tintColor = UIColor.gray
-                
-                if let deadline = listIsNotDone[indexPath.row].deadline {
-                    let dateStringFormatter = DateFormatter()
-                    dateStringFormatter.dateFormat = "dd MMMM"
-                    dateStringFormatter.locale = Locale(identifier: "ru_RU")
-                    cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
-                    cell.dateLabel.text = dateStringFormatter.string(for: deadline)
-                    cell.dateLabel.isHidden = false
-                    cell.calendarImage.isHidden = false
+                cell.dateLabel.isHidden = true
+                cell.calendarImage.isHidden = true
+                cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                cell.importanceLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                cell.impotranceImage.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+            }
+            if listIsNotDone[indexPath.row].importance == Importance.important {
+                cell.impotranceImage.isHidden = true
+                cell.importanceLabel.isHidden = false
+                cell.circleImage.tintColor = UIColor(named: "Red")
+                cell.importanceLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+                cell.taskLabel.leadingAnchor.constraint(equalTo: cell.importanceLabel.trailingAnchor, constant: 5).isActive = true
+            }
+            else {
+                if listIsNotDone[indexPath.row].importance == Importance.unimportant {
+                    cell.impotranceImage.isHidden = false
+                    cell.importanceLabel.isHidden = true
+                    cell.impotranceImage.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+                    cell.taskLabel.leadingAnchor.constraint(equalTo: cell.impotranceImage.trailingAnchor, constant: 5).isActive = true
                 }
                 else {
-                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                    cell.dateLabel.isHidden = true
-                    cell.calendarImage.isHidden = true
+                    cell.impotranceImage.isHidden = true
+                    cell.importanceLabel.isHidden = true
+                    cell.taskLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
                 }
+                cell.circleImage.tintColor = UIColor.lightGray
             }
-            let attributedText = NSAttributedString(
-                string: listIsNotDone[indexPath.row].text,
-                attributes: nil
-            )
-            cell.taskLabel.attributedText = attributedText
-
-            cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-            cell.button.tintColor = UIColor.gray
-            return cell
+            
         }
         else {
             if listAll[indexPath.row].isDone {
@@ -243,52 +263,62 @@ extension ViewController: UITableViewDataSource {
                 cell.circleImage.tintColor = UIColor(named: "Green")
                 let attributedText = NSAttributedString(
                     string: listAll[indexPath.row].text,
-                    attributes: [.strikethroughStyle: NSUnderlineStyle.single.rawValue]
+                    attributes: [.strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                                 .foregroundColor: UIColor.lightGray]
                 )
                 cell.taskLabel.attributedText = attributedText
                 cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                cell.dateLabel.isHidden = true
+                cell.taskLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+                cell.importanceLabel.isHidden = true
+                cell.impotranceImage.isHidden = true
                 cell.calendarImage.isHidden = true
+                cell.dateLabel.isHidden = true
             }
             else {
-                if listAll[indexPath.row].importance == Importance.important {
-                    cell.circleImage.image = UIImage(systemName: "circle")
-                    cell.circleImage.tintColor = UIColor.red
-                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                    cell.dateLabel.isHidden = true
-                    cell.calendarImage.isHidden = true
+                if let deadline = listAll[indexPath.row].deadline {
+                    let attributedText = NSAttributedString(string: dateStringFormatter.string(from: deadline))
+                    cell.dateLabel.attributedText = attributedText
+                    cell.dateLabel.isHidden = false
+                    cell.calendarImage.isHidden = false
+                    cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+                    cell.importanceLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
+                    cell.impotranceImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
                 }
                 else {
-                    cell.circleImage.image = UIImage(systemName: "circle")
-                    cell.circleImage.tintColor = UIColor.gray
-                    
-                    if let deadline = listAll[indexPath.row].deadline {
-                        let dateStringFormatter = DateFormatter()
-                        dateStringFormatter.dateFormat = "dd MMMM"
-                        dateStringFormatter.locale = Locale(identifier: "ru_RU")
-                        cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
-                        cell.dateLabel.text = dateStringFormatter.string(for: deadline)
-                        cell.dateLabel.isHidden = false
-                        cell.calendarImage.isHidden = false
+                    cell.dateLabel.isHidden = true
+                    cell.calendarImage.isHidden = true
+                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                    cell.importanceLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                    cell.impotranceImage.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+                }
+                if listAll[indexPath.row].importance == Importance.important {
+                    cell.impotranceImage.isHidden = true
+                    cell.importanceLabel.isHidden = false
+                    cell.circleImage.tintColor = UIColor(named: "Red")
+                    cell.importanceLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+                    cell.taskLabel.leadingAnchor.constraint(equalTo: cell.importanceLabel.trailingAnchor, constant: 5).isActive = true
+                }
+                else {
+                    if listAll[indexPath.row].importance == Importance.unimportant {
+                        cell.impotranceImage.isHidden = false
+                        cell.importanceLabel.isHidden = true
+                        cell.impotranceImage.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+                        cell.taskLabel.leadingAnchor.constraint(equalTo: cell.impotranceImage.trailingAnchor, constant: 5).isActive = true
                     }
                     else {
-                        cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                        cell.dateLabel.isHidden = true
-                        cell.calendarImage.isHidden = true
+                        cell.impotranceImage.isHidden = true
+                        cell.importanceLabel.isHidden = true
+                        cell.taskLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
                     }
+                    cell.circleImage.tintColor = UIColor.lightGray
                 }
-                let attributedText = NSAttributedString(
-                    string: listAll[indexPath.row].text,
-                    attributes: nil
-                )
-                cell.taskLabel.attributedText = attributedText
-
             }
-            cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-            cell.button.tintColor = UIColor.gray
-            return cell
+
         }
-        
+        cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+        cell.button.tintColor = UIColor.gray
+        return cell
+
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -366,6 +396,8 @@ extension ViewController: UITableViewDataSource {
 
 class CustomCell: UITableViewCell {
 
+    let impotranceImage = UIImageView()
+    let importanceLabel = UILabel()
     let taskLabel = UILabel()
     let dateLabel = UILabel()
     let button = UIButton()
@@ -385,14 +417,37 @@ class CustomCell: UITableViewCell {
             circleImage.heightAnchor.constraint(equalToConstant: 30)
         ])
         
+        impotranceImage.image = UIImage(systemName: "arrow.down")
+        impotranceImage.tintColor = UIColor.lightGray
+        impotranceImage.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(impotranceImage)
+
+        NSLayoutConstraint.activate([
+            impotranceImage.leadingAnchor.constraint(equalTo: circleImage.trailingAnchor, constant: 15),
+            impotranceImage.heightAnchor.constraint(equalToConstant: 17),
+            impotranceImage.widthAnchor.constraint(equalToConstant: 17),
+            
+        ])
+
+        importanceLabel.text = "!!"
+        importanceLabel.textColor = UIColor(named: "Red")
+        importanceLabel.font = .systemFont(ofSize: 25)
+
+        importanceLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(importanceLabel)
+
+        NSLayoutConstraint.activate([
+            importanceLabel.leadingAnchor.constraint(equalTo: circleImage.trailingAnchor, constant: 15),
+            importanceLabel.heightAnchor.constraint(equalToConstant: 15)
+        ])
+        
         taskLabel.translatesAutoresizingMaskIntoConstraints = false
         taskLabel.font = UIFont.systemFont(ofSize: 17)
         
         contentView.addSubview(taskLabel)
         
         NSLayoutConstraint.activate([
-            taskLabel.leadingAnchor.constraint(equalTo: circleImage.trailingAnchor, constant: 15),
-//            taskLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+//            taskLabel.leadingAnchor.constraint(equalTo: circleImage.trailingAnchor, constant: 15),
             taskLabel.heightAnchor.constraint(equalToConstant: 30)
         ])
         
