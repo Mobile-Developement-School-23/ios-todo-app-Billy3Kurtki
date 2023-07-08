@@ -1,4 +1,5 @@
 import XCTest
+
 @testable import TodoList
 
 final class ToDoLIstTests: XCTestCase {
@@ -209,4 +210,22 @@ final class ToDoLIstTests: XCTestCase {
         XCTAssertNil(sut)
     }
     
+    func testDataTask() {
+        let url = try URL(string: "https://beta.mrdekk.ru/todobackend/list")
+        guard let requestUrl = url else {
+            print("Ошибка создания url в тесте testParseCSVWithoutFields")
+            return
+        }
+        var request = URLRequest(url: requestUrl)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(5)", forHTTPHeaderField: "X-Last-Known-Revision")
+        let (data, response) = try await URLSession.shared.dataTask(for: request)
+        
+        XCTAssertNotNil(data)
+        XCTAssertNotNil(response)
+
+    }
 }

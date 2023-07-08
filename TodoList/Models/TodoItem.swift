@@ -1,12 +1,12 @@
 import Foundation
 
-enum Importance: String {
+enum Importance: String, Decodable {
     case unimportant = "неважная"
     case ordinary = "обычная"
     case important = "важная"
 }
 
-struct TodoItem: Equatable {
+struct TodoItem: Equatable, Decodable {
     let id: String
     let text: String
     let importance: Importance

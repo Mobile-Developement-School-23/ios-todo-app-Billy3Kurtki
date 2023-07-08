@@ -275,50 +275,153 @@ extension ViewController: UITableViewDataSource {
                 cell.dateLabel.isHidden = true
             }
             else {
-                if let deadline = listAll[indexPath.row].deadline {
-                    let attributedText = NSAttributedString(string: dateStringFormatter.string(from: deadline))
-                    cell.dateLabel.attributedText = attributedText
-                    cell.dateLabel.isHidden = false
-                    cell.calendarImage.isHidden = false
-                    cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
-                    cell.importanceLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
-                    cell.impotranceImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
-                }
-                else {
-                    cell.dateLabel.isHidden = true
-                    cell.calendarImage.isHidden = true
-                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                    cell.importanceLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                    cell.impotranceImage.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-                }
-                if listAll[indexPath.row].importance == Importance.important {
-                    cell.impotranceImage.isHidden = true
-                    cell.importanceLabel.isHidden = false
-                    cell.circleImage.tintColor = UIColor(named: "Red")
-                    cell.importanceLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
-                    cell.taskLabel.leadingAnchor.constraint(equalTo: cell.importanceLabel.trailingAnchor, constant: 5).isActive = true
-                }
-                else {
-                    if listAll[indexPath.row].importance == Importance.unimportant {
-                        cell.impotranceImage.isHidden = false
-                        cell.importanceLabel.isHidden = true
-                        cell.impotranceImage.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
-                        cell.taskLabel.leadingAnchor.constraint(equalTo: cell.impotranceImage.trailingAnchor, constant: 5).isActive = true
-                    }
-                    else {
-                        cell.impotranceImage.isHidden = true
-                        cell.importanceLabel.isHidden = true
-                        cell.taskLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
-                    }
-                    cell.circleImage.tintColor = UIColor.lightGray
-                }
+//                if let deadline = listAll[indexPath.row].deadline {
+//                    let attributedText = NSAttributedString(string: dateStringFormatter.string(from: deadline))
+//                    cell.dateLabel.attributedText = attributedText
+//                    cell.dateLabel.isHidden = false
+//                    cell.calendarImage.isHidden = false
+//                    cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+//                    cell.importanceLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
+//                    cell.impotranceImage.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 15).isActive = true
+//                }
+//                else {
+//                    cell.dateLabel.isHidden = true
+//                    cell.calendarImage.isHidden = true
+//                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                    cell.importanceLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                    cell.impotranceImage.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                }
+//                if listAll[indexPath.row].importance == Importance.important {
+//                    cell.impotranceImage.isHidden = true
+//                    cell.importanceLabel.isHidden = false
+//                    cell.circleImage.tintColor = UIColor(named: "Red")
+//                    cell.importanceLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+//                    cell.taskLabel.leadingAnchor.constraint(equalTo: cell.importanceLabel.trailingAnchor, constant: 5).isActive = true
+//                }
+//                else {
+//                    if listAll[indexPath.row].importance == Importance.unimportant {
+//                        cell.impotranceImage.isHidden = false
+//                        cell.importanceLabel.isHidden = true
+//                        cell.impotranceImage.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+//                        cell.taskLabel.leadingAnchor.constraint(equalTo: cell.impotranceImage.trailingAnchor, constant: 5).isActive = true
+//                    }
+//                    else {
+//                        cell.impotranceImage.isHidden = true
+//                        cell.importanceLabel.isHidden = true
+//                        cell.taskLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 15).isActive = true
+//                    }
+//                    cell.circleImage.tintColor = UIColor.lightGray
+//                }
             }
 
         }
         cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
         cell.button.tintColor = UIColor.gray
         return cell
-
+//        if !flag {
+//
+//            cell.circleImage.image = UIImage(systemName: "circle")
+//            if listIsNotDone[indexPath.row].importance == Importance.important {
+//                cell.circleImage.tintColor = UIColor.red
+////                cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+////                cell.dateLabel.isHidden = true
+////                cell.calendarImage.isHidden = true
+//            }
+//            else {
+//                cell.circleImage.tintColor = UIColor.gray
+//
+//                if let deadline = listIsNotDone[indexPath.row].deadline {
+//                    let dateStringFormatter = DateFormatter()
+//                    dateStringFormatter.dateFormat = "dd MMMM"
+//                    dateStringFormatter.locale = Locale(identifier: "ru_RU")
+//                    cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+//                    let attributedText = NSAttributedString(
+//                        string: dateStringFormatter.string(for: deadline)!,
+//                        attributes: nil
+//                    )
+//                    cell.dateLabel.attributedText = attributedText
+//                    cell.dateLabel.isHidden = false
+//                    cell.calendarImage.isHidden = false
+//                }
+//                else {
+//                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                    cell.dateLabel.isHidden = true
+//                    cell.calendarImage.isHidden = true
+//                }
+//            }
+//            let attributedText = NSAttributedString(
+//                string: listIsNotDone[indexPath.row].text,
+//                attributes: nil
+//            )
+//            cell.taskLabel.attributedText = attributedText
+//
+//            cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+//            cell.button.tintColor = UIColor.gray
+//            return cell
+//        }
+//        else {
+//            if listAll[indexPath.row].isDone {
+//                cell.circleImage.image = UIImage(systemName: "checkmark.circle.fill")
+//                cell.circleImage.backgroundColor = UIColor.white
+//                cell.circleImage.tintColor = UIColor(named: "Green")
+//                cell.importanceLabel.isHidden = true
+//                cell.impotranceImage.isHidden = true
+//                let attributedText = NSAttributedString(
+//                    string: listAll[indexPath.row].text,
+//                    attributes: [.strikethroughStyle: NSUnderlineStyle.single.rawValue,
+//                                 .foregroundColor: UIColor.lightGray]
+//                )
+//                cell.taskLabel.attributedText = attributedText
+//                cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                cell.dateLabel.isHidden = true
+//                cell.calendarImage.isHidden = true
+//            }
+//            else {
+//                if listAll[indexPath.row].importance == Importance.important {
+//                    cell.circleImage.image = UIImage(systemName: "circle")
+//                    cell.circleImage.tintColor = UIColor.red
+////                    cell.taskLabel.leadingAnchor.constraint(equalTo: cell.circleImage.trailingAnchor, constant: 100).isActive = true
+//                    cell.impotranceImage.isHidden = true
+////                    cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                    cell.dateLabel.isHidden = true
+//                    cell.calendarImage.isHidden = true
+//                }
+//                else {
+//                    cell.circleImage.image = UIImage(systemName: "circle")
+//                    cell.circleImage.tintColor = UIColor.lightGray
+//
+//                    if let deadline = listAll[indexPath.row].deadline {
+//                        let dateStringFormatter = DateFormatter()
+//                        dateStringFormatter.dateFormat = "dd MMMM"
+//                        dateStringFormatter.locale = Locale(identifier: "ru_RU")
+//                        cell.taskLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10).isActive = true
+//                        let attributedText = NSAttributedString(
+//                            string: dateStringFormatter.string(for: deadline)!,
+//                            attributes: nil
+//                        )
+//                        cell.dateLabel.attributedText = attributedText
+//                        cell.dateLabel.isHidden = false
+//                        cell.calendarImage.isHidden = false
+//                        cell.dateLabel.backgroundColor = UIColor.black
+//                        cell.calendarImage.backgroundColor = UIColor.black
+//                    }
+//                    else {
+//                        cell.taskLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+//                        cell.dateLabel.isHidden = true
+//                        cell.calendarImage.isHidden = true
+//                    }
+//                }
+//                let attributedText = NSAttributedString(
+//                    string: listAll[indexPath.row].text,
+//                    attributes: nil
+//                )
+//                cell.taskLabel.attributedText = attributedText
+//
+//            }
+//            cell.button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
+//            cell.button.tintColor = UIColor.gray
+//            return cell
+//        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

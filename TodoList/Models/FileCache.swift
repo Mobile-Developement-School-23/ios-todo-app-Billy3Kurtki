@@ -3,7 +3,7 @@ import CocoaLumberjackSwift
 
 class FileCache {
     private(set) var toDoList: [TodoItem] = []
-    
+    static var isDirty: Bool = false
     func addItem(_ item: TodoItem) {
         if let itemIndex = toDoList.firstIndex(where: { $0.id == item.id }) {
             toDoList.remove(at: itemIndex)
@@ -131,5 +131,13 @@ class FileCache {
         } catch {
             DDLogError("Ошибка получения данных из CSV файла: \(error.localizedDescription)")
         }
+    }
+    
+    func getAllFromNetwork() async {
+        try await DefaultNetworkingService.getList()
+    }
+    
+    func saveAllNetwork() async {
+        
     }
 }
