@@ -21,7 +21,8 @@ class ViewController: UIViewController {
         deadline: nil,
         isDone: false,
         createAt: Date(),
-        dateEdit: Date()
+        dateEdit: Date(),
+        lastUpdatedBy: "mac"
     )
     
     var todoItem2 = TodoItem(
@@ -31,23 +32,24 @@ class ViewController: UIViewController {
         deadline: Date(),
         isDone: false,
         createAt: Date(),
-        dateEdit: Date()
+        dateEdit: Date(),
+        lastUpdatedBy: "mac"
     )
     
-    var todoItem3 = TodoItem(id: "3",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem4 = TodoItem(id: "4",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem5 = TodoItem(id: "5",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem6 = TodoItem(id: "6",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem7 = TodoItem(id: "7",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem8 = TodoItem(id: "8",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem9 = TodoItem(id: "9",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem10 = TodoItem(id: "10",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
-    var todoItem11 = TodoItem(id: "11",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date())
+    var todoItem3 = TodoItem(id: "3",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem4 = TodoItem(id: "4",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem5 = TodoItem(id: "5",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem6 = TodoItem(id: "6",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem7 = TodoItem(id: "7",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem8 = TodoItem(id: "8",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem9 = TodoItem(id: "9",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem10 = TodoItem(id: "10",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
+    var todoItem11 = TodoItem(id: "11",text: "Купить сыр",importance: Importance.ordinary,deadline: nil,isDone: true,createAt: Date(),dateEdit: Date(), lastUpdatedBy: "mac")
     var listAll: [TodoItem] = []
     var listIsNotDone: [TodoItem] = []
     var flag = false
     var collection: [TodoItem] = []
-    
+    var networkService = DefaultNetworkingService()
     let titleLabel = UILabel()
     let doneTasksLabel = UILabel()
     let showDoneTasksButton = UIButton()
@@ -438,7 +440,8 @@ extension ViewController: UITableViewDataSource {
                 deadline: item.deadline,
                 isDone: true,
                 createAt: item.createAt,
-                dateEdit: item.dateEdit
+                dateEdit: item.dateEdit,
+                lastUpdatedBy: item.lastUpdatedBy
             )
             self.filecache.addItem(todoItem)
             self.updateListIsNotDone()
@@ -476,7 +479,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     @objc func showCreateView(sender: Any) {
-        let secondVC = SecondViewContoller(viewController: self)
+        let secondVC = SecondViewContoller(viewController: self, networkService: networkService)
         if let sheet = secondVC.sheetPresentationController {
             sheet.detents = [.large()]
             sheet.preferredCornerRadius = 20
@@ -486,7 +489,7 @@ extension ViewController: UITableViewDataSource {
     }
     
     func showDetails(_ item: TodoItem) {
-        let secondVC = SecondViewContoller(item: item, viewController: self)
+        let secondVC = SecondViewContoller(item: item, viewController: self, networkService: networkService)
         if let sheet = secondVC.sheetPresentationController {
             sheet.detents = [.large()]
             sheet.preferredCornerRadius = 20

@@ -13,9 +13,11 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
     
     var item: TodoItem?
     var viewContoller: ViewController
-    init(item: TodoItem? = nil, viewController: ViewController) {
+    var networkService: DefaultNetworkingService
+    init(item: TodoItem? = nil, viewController: ViewController, networkService: DefaultNetworkingService) {
         self.item = item
         self.viewContoller = viewController
+        self.networkService = networkService
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -218,10 +220,11 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
         default:
             importance = Importance.ordinary
         }
+        var lastUpdatedBy = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
 //        if switcherCell.dateLabel.text != "" {
 //            deadline = Date(switcherCell.dateLabel.text!)
 //        }
-        return TodoItem(id: item!.id,text: text, importance: importance)
+        return TodoItem(id: item!.id,text: text, importance: importance, lastUpdatedBy: lastUpdatedBy)
     }
     
     @objc func saveButtonAction(_ sender: Any) {
@@ -243,7 +246,10 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
 //        else {
 //
 //        }
-        viewContoller.filecache.addItem(onTapSaveButton())
+//        viewContoller.filecache.addItem(onTapSaveButton())
+        Task {
+            try await DefaultNetworkingService.addItem(onTapSaveButton())
+        }
         viewContoller.updateData()
         dismiss(animated: true)
 //        alertController.addAction(alertAction)
@@ -253,7 +259,11 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
     
     @objc func deleteButtonAction(_ sender: Any) {
         if let item = item {
-            viewContoller.filecache.deleteItem(item.id)
+//            viewContoller.filecache.deleteItem(item.id)
+            Task {
+                try await DefaultNetworkingService.deleteItem(item.id)
+            }
+            
             viewContoller.updateData()
             DDLogInfo("Удаление прошло успешно!")
             dismiss(animated: true)

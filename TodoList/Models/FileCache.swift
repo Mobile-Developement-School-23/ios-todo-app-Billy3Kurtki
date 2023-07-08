@@ -82,7 +82,7 @@ class FileCache {
     let delimiter = TodoItem.delimiter
     
     func saveAllCsvFile(fileName: String) {
-        var csvString = "id;text;importance;deadline;isDone;createAt;dateEdit;\n"
+        var csvString = "id;text;importance;deadline;isDone;createAt;dateEdit;color;lastUpdatedBy\n"
         for i in toDoList {
             csvString.append("\(i.csv)\n")
         }

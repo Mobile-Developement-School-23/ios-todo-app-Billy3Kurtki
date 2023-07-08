@@ -7,9 +7,14 @@
 
 import Foundation
 
+struct NetworkTodoList: Decodable {
+    let status: String
+    let revision: Int32
+    let list: [TodoItem]?
+}
+
 struct NetworkTodoItem: Decodable {
     let status: String
     let revision: Int32
-    
-    let list: [TodoItem]?
+    let item: TodoItem?
 }

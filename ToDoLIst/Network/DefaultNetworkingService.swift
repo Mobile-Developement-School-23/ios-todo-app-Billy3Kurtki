@@ -18,6 +18,7 @@ struct DefaultNetworkingService: NetworkingService {
     private static let httpStatusCodeSuccess = 200..<300
     private static let token = "contemplative"
     static var lastRevision: Int32 = 0
+    static var isDirty: Bool = false
     let queue = DispatchQueue.global()
     
 //    var lastRevision: Int32 = 0
@@ -58,122 +59,144 @@ struct DefaultNetworkingService: NetworkingService {
                 throw RequestProcessorError.failureResponse(response)
             }
             let decoder = JSONDecoder()
-            guard let todo = try? decoder.decode(NetworkTodoItem.self, from: data) else {
+            guard let todo = try? decoder.decode(NetworkTodoList.self, from: data) else {
                 DDLogError("Ошибка декодирования json")
                 return nil
             }
+            lastRevision = todo.revision
+            isDirty = false
             return todo.list
         } catch {
             DDLogError("Ошибка получения списка задач")
+            isDirty = true
             return nil
         }
     }
     
     static func addItem(_ item: TodoItem) async {
-        
+        if isDirty {
+            await getList()
+        }
         guard let baseUrl = try? makeUrl().appending(path: "/list") else {
             DDLogError("Ошибка создания Url")
             return
         }
-        let itemJSON = item.json as? [String: Any]
-        let json: [String: [String: Any]] = ["element": itemJSON ?? [:]]
-        let jsonData = try? JSONSerialization.data(withJSONObject: json)
-        do {
-            var request = URLRequest(url: baseUrl)
-            request.httpMethod = "POST"
-            request.httpBody = jsonData
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.addValue("application/json", forHTTPHeaderField: "Accept")
-            request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
-            let (data, response) = try await URLSession.shared.dataTask(for: request)
-            guard let response = response as? HTTPURLResponse else {
-                FileCache.isDirty = true
-                throw RequestProcessorError.unexpectedResponse(response)
-            }
-            guard Self.httpStatusCodeSuccess.contains(response.statusCode) else {
-                FileCache.isDirty = true
-                throw RequestProcessorError.failureResponse(response)
-            }
-            let decoder = JSONDecoder()
-            guard let todo = try? decoder.decode(NetworkTodoItem.self, from: data) else {
-                DDLogError("Ошибка декодирования json")
+        Task {
+            let itemJSON = item.json as? [String: Any]
+            let json: [String: [String: Any]] = ["element": itemJSON ?? [:]]
+            let jsonData = try? JSONSerialization.data(withJSONObject: json)
+            do {
+                var request = URLRequest(url: baseUrl)
+                request.httpMethod = "POST"
+                request.httpBody = jsonData
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.addValue("application/json", forHTTPHeaderField: "Accept")
+                request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
+                let (data, response) = try await URLSession.shared.dataTask(for: request)
+                guard let response = response as? HTTPURLResponse else {
+                    FileCache.isDirty = true
+                    throw RequestProcessorError.unexpectedResponse(response)
+                }
+                guard Self.httpStatusCodeSuccess.contains(response.statusCode) else {
+                    FileCache.isDirty = true
+                    throw RequestProcessorError.failureResponse(response)
+                }
+                let decoder = JSONDecoder()
+                guard let todo = try? decoder.decode(NetworkTodoList.self, from: data) else {
+                    DDLogError("Ошибка декодирования json")
+                    return
+                }
+                //setLastRevision(todo.revision)
+                lastRevision = todo.revision
+                isDirty = false
+            } catch {
+                DDLogError("Ошибка добавления задачи")
+                isDirty = true
                 return
             }
-            //setLastRevision(todo.revision)
-            lastRevision = todo.revision
-        } catch {
-            DDLogError("Ошибка добавления задачи")
-            return
         }
     }
     
     static func updateItem(_ item: TodoItem) async {
+        if isDirty {
+            await getList()
+        }
         guard let baseUrl = try? makeUrl().appending(path: "/list/\(item.id)") else {
             DDLogError("Ошибка создания Url")
             return
         }
-        let itemJSON = item.json as? [String: Any]
-        let json: [String: [String: Any]] = ["element": itemJSON ?? [:]]
-        let jsonData = try? JSONSerialization.data(withJSONObject: json)
-        do {
-            var request = URLRequest(url: baseUrl)
-            request.httpMethod = "PUT"
-            request.httpBody = jsonData
-            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
-            request.setValue("\(lastRevision)", forHTTPHeaderField: "X-Last-Known-Revision")
-            let (data, response) = try await URLSession.shared.dataTask(for: request)
-            guard let response = response as? HTTPURLResponse else {
-                FileCache.isDirty = true
-                throw RequestProcessorError.unexpectedResponse(response)
-            }
-            guard Self.httpStatusCodeSuccess.contains(response.statusCode) else {
-                FileCache.isDirty = true
-                throw RequestProcessorError.failureResponse(response)
-            }
-            let decoder = JSONDecoder()
-            guard let todo = try? decoder.decode(NetworkTodoItem.self, from: data) else {
-                DDLogError("Ошибка декодирования json")
+        Task {
+            let itemJSON = item.json as? [String: Any]
+            let json: [String: [String: Any]] = ["element": itemJSON ?? [:]]
+            let jsonData = try? JSONSerialization.data(withJSONObject: json)
+            do {
+                var request = URLRequest(url: baseUrl)
+                request.httpMethod = "PUT"
+                request.httpBody = jsonData
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
+                request.setValue("\(lastRevision)", forHTTPHeaderField: "X-Last-Known-Revision")
+                let (data, response) = try await URLSession.shared.dataTask(for: request)
+                guard let response = response as? HTTPURLResponse else {
+                    FileCache.isDirty = true
+                    throw RequestProcessorError.unexpectedResponse(response)
+                }
+                guard Self.httpStatusCodeSuccess.contains(response.statusCode) else {
+                    FileCache.isDirty = true
+                    throw RequestProcessorError.failureResponse(response)
+                }
+                let decoder = JSONDecoder()
+                guard let todo = try? decoder.decode(NetworkTodoList.self, from: data) else {
+                    DDLogError("Ошибка декодирования json")
+                    return
+                }
+                //setLastRevision(todo.revision)
+                lastRevision = todo.revision
+                isDirty = false
+            } catch {
+                DDLogError("Ошибка обновления задачи")
+                isDirty = true
                 return
             }
-            //setLastRevision(todo.revision)
-            lastRevision = todo.revision
-        } catch {
-            DDLogError("Ошибка обновления задачи")
-            return
         }
     }
     
     static func deleteItem(_ id: String) async {
+        if isDirty {
+            await getList()
+        }
         guard let baseUrl = try? makeUrl().appending(path: "/list/\(id)") else {
             DDLogError("Ошибка создания Url")
             return
         }
-        do {
-            var request = URLRequest(url: baseUrl)
-            request.httpMethod = "DELETE"
-            request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
-            request.setValue("\(lastRevision)", forHTTPHeaderField: "X-Last-Known-Revision")
-            let (data, response) = try await URLSession.shared.dataTask(for: request)
-            guard let response = response as? HTTPURLResponse else {
-                FileCache.isDirty = true
-                throw RequestProcessorError.unexpectedResponse(response)
-            }
-            guard Self.httpStatusCodeSuccess.contains(response.statusCode) else {
-                FileCache.isDirty = true
-                throw RequestProcessorError.failureResponse(response)
-            }
-            let decoder = JSONDecoder()
-            guard let todo = try? decoder.decode(NetworkTodoItem.self, from: data) else {
-                DDLogError("Ошибка декодирования json")
+        Task {
+            do {
+                var request = URLRequest(url: baseUrl)
+                request.httpMethod = "DELETE"
+                request.setValue("Bearer \(DefaultNetworkingService.token)", forHTTPHeaderField: "Authorization")
+                request.setValue("\(lastRevision)", forHTTPHeaderField: "X-Last-Known-Revision")
+                let (data, response) = try await URLSession.shared.dataTask(for: request)
+                guard let response = response as? HTTPURLResponse else {
+                    FileCache.isDirty = true
+                    throw RequestProcessorError.unexpectedResponse(response)
+                }
+                guard Self.httpStatusCodeSuccess.contains(response.statusCode) else {
+                    FileCache.isDirty = true
+                    throw RequestProcessorError.failureResponse(response)
+                }
+                let decoder = JSONDecoder()
+                guard let todo = try? decoder.decode(NetworkTodoList.self, from: data) else {
+                    DDLogError("Ошибка декодирования json")
+                    return
+                }
+                //setLastRevision(todo.revision)
+                lastRevision = todo.revision
+                isDirty = false
+            } catch {
+                DDLogError("Ошибка удаления задачи")
+                isDirty = true
                 return
             }
-            //setLastRevision(todo.revision)
-            
-            lastRevision = todo.revision
-        } catch {
-            DDLogError("Ошибка удаления задачи")
-            return
         }
     }
     
@@ -182,6 +205,7 @@ struct DefaultNetworkingService: NetworkingService {
             DDLogError("Ошибка создания Url")
             return nil
         }
+        
         do {
             var request = URLRequest(url: baseUrl)
             request.httpMethod = "GET"
@@ -197,12 +221,12 @@ struct DefaultNetworkingService: NetworkingService {
                 throw RequestProcessorError.failureResponse(response)
             }
             let decoder = JSONDecoder()
-            guard let todo = try? decoder.decode([String: TodoItem].self, from: data) else {
+            guard let todo = try? decoder.decode(NetworkTodoItem.self, from: data) else {
                 DDLogError("Ошибка декодирования json")
                 return nil
             }
-            let item = todo["element"]
-            return item
+            
+            return todo.item
         } catch {
             DDLogError("Ошибка получения задачи")
             return nil
