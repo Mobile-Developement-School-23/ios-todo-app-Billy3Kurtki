@@ -1,12 +1,12 @@
 import Foundation
 
-enum Importance: String {
-    case unimportant = "неважная"
-    case ordinary = "обычная"
-    case important = "важная"
+enum Importance: String, Decodable {
+    case unimportant = "low"
+    case ordinary = "basic"
+    case important = "important"
 }
 
-struct TodoItem: Equatable {
+struct TodoItem: Equatable, Decodable {
     let id: String
     let text: String
     let importance: Importance
@@ -14,8 +14,19 @@ struct TodoItem: Equatable {
     let isDone: Bool
     let createAt: Date
     let dateEdit: Date?
+    let color: String?
+    let lastUpdatedBy: String
     
-    init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil, isDone: Bool = false, createAt: Date = Date(), dateEdit: Date? = nil) {
+    enum CodingKeys: String, CodingKey {
+        case id, importance, deadline, text, color
+        case isDone = "done"
+        case createAt = "created_at"
+        case dateEdit = "changed_at"
+        case lastUpdatedBy = "last_updated_by"
+    }
+    
+    init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil,
+         isDone: Bool = false, createAt: Date = Date(), dateEdit: Date? = nil, color: String? = nil, lastUpdatedBy: String) {
         self.id = id
         self.text = text
         self.importance = importance
@@ -23,6 +34,8 @@ struct TodoItem: Equatable {
         self.isDone = isDone
         self.createAt = createAt
         self.dateEdit = dateEdit
+        self.color = color
+        self.lastUpdatedBy = lastUpdatedBy
     }
 }
 
@@ -32,7 +45,9 @@ extension TodoItem {
               let id = json["id"] as? String,
               let text = json["text"] as? String,
               let isDone = json["isDone"] as? Bool,
-              let createAt = json["createAt"] as? Int else { return nil }
+              let createAt = json["createAt"] as? Int,
+              let color = json["color"] as? String,
+              let lastUpdatedBy = json["lastUpdatedBy"] as? String else { return nil }
         
         let importance = Importance(rawValue: (json["importance"] as? Importance.RawValue ?? Importance.ordinary.rawValue)) ?? .ordinary
         let deadline = (json["deadline"] as? Int)?.date
@@ -46,7 +61,9 @@ extension TodoItem {
             deadline: deadline,
             isDone: isDone,
             createAt: createAt.date,
-            dateEdit: dateEdit
+            dateEdit: dateEdit,
+            color: color,
+            lastUpdatedBy: lastUpdatedBy
         )
         return item
     }
@@ -66,13 +83,14 @@ extension TodoItem {
         if let dateEdit = dateEdit {
             toDoItem["dateEdit"] = dateEdit.unixTimestamp
         }
+        toDoItem["lastUpdatedBy"] = lastUpdatedBy
         
         return toDoItem
     }
     
     static let delimiter = ";"
     
-    static let csvString = "id;text;importance;deadline;isDone;createAt;dateEdit;\n"
+    static let csvString = "id;text;importance;deadline;isDone;createAt;dateEdit;color;lastUpdatedBy\n"
     
     static let countCsvString = csvString.components(separatedBy: delimiter).count
     
@@ -97,7 +115,9 @@ extension TodoItem {
                 return nil
             }
             guard let createAt = Int(row[5]) else { return nil }
-            
+            if row[9].isEmpty {
+                return nil
+            }
             let item: TodoItem = TodoItem(
                 id: row[0],
                 text: row[1],
@@ -105,7 +125,9 @@ extension TodoItem {
                 deadline: Int(row[3])?.date ?? nil,
                 isDone: isDone,
                 createAt: createAt.date,
-                dateEdit: Int(row[7])?.date ?? nil
+                dateEdit: Int(row[7])?.date ?? nil,
+                color: row[8] ?? nil,
+                lastUpdatedBy: row[9]
             )
             
             return item
