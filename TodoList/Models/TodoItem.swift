@@ -1,9 +1,9 @@
 import Foundation
 
 enum Importance: String, Decodable {
-    case unimportant = "неважная"
-    case ordinary = "обычная"
-    case important = "важная"
+    case unimportant = "low"
+    case ordinary = "basic"
+    case important = "important"
 }
 
 struct TodoItem: Equatable, Decodable {
@@ -14,6 +14,13 @@ struct TodoItem: Equatable, Decodable {
     let isDone: Bool
     let createAt: Date
     let dateEdit: Date?
+    
+    enum CodingKeys: CodingKey, String {
+        case id, importance, deadline, text
+        case isDone = "done"
+        case createAt = "created_at"
+        case dateEdit = "changed_at"
+    }
     
     init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil, isDone: Bool = false, createAt: Date = Date(), dateEdit: Date? = nil) {
         self.id = id

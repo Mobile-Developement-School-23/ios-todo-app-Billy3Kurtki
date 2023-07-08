@@ -67,10 +67,10 @@ struct DefaultNetworkingService: NetworkingService {
             DDLogError("Ошибка получения списка задач")
             return nil
         }
-        return nil
     }
     
     static func addItem(_ item: TodoItem) async {
+        
         guard let baseUrl = try? makeUrl().appending(path: "/list") else {
             DDLogError("Ошибка создания Url")
             return
@@ -99,7 +99,7 @@ struct DefaultNetworkingService: NetworkingService {
                 DDLogError("Ошибка декодирования json")
                 return
             }
-//            setLastRevision(todo.revision)
+            //setLastRevision(todo.revision)
             lastRevision = todo.revision
         } catch {
             DDLogError("Ошибка добавления задачи")
@@ -136,6 +136,7 @@ struct DefaultNetworkingService: NetworkingService {
                 DDLogError("Ошибка декодирования json")
                 return
             }
+            //setLastRevision(todo.revision)
             lastRevision = todo.revision
         } catch {
             DDLogError("Ошибка обновления задачи")
@@ -167,6 +168,8 @@ struct DefaultNetworkingService: NetworkingService {
                 DDLogError("Ошибка декодирования json")
                 return
             }
+            //setLastRevision(todo.revision)
+            
             lastRevision = todo.revision
         } catch {
             DDLogError("Ошибка удаления задачи")
