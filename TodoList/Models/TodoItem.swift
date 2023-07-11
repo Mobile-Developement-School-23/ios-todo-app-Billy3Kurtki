@@ -46,13 +46,11 @@ extension TodoItem {
               let text = json["text"] as? String,
               let isDone = json["isDone"] as? Bool,
               let createAt = json["createAt"] as? Int,
-              let color = json["color"] as? String,
               let lastUpdatedBy = json["lastUpdatedBy"] as? String else { return nil }
         
         let importance = Importance(rawValue: (json["importance"] as? Importance.RawValue ?? Importance.ordinary.rawValue)) ?? .ordinary
         let deadline = (json["deadline"] as? Int)?.date
         let dateEdit = (json["dateEdit"] as? Int)?.date
-        
         
         let item: TodoItem = TodoItem(
             id: id,
@@ -62,7 +60,7 @@ extension TodoItem {
             isDone: isDone,
             createAt: createAt.date,
             dateEdit: dateEdit,
-            color: color,
+            color: json["color"] as? String ?? nil,
             lastUpdatedBy: lastUpdatedBy
         )
         return item
@@ -82,6 +80,9 @@ extension TodoItem {
         toDoItem["createAt"] = createAt.unixTimestamp
         if let dateEdit = dateEdit {
             toDoItem["dateEdit"] = dateEdit.unixTimestamp
+        }
+        if let color = color {
+            toDoItem["color"] = color
         }
         toDoItem["lastUpdatedBy"] = lastUpdatedBy
         

@@ -108,8 +108,10 @@ class ViewController: UIViewController {
         filecache.addItem(todoItem11)
         filecache.saveAllJsonFile(fileName: "jsonfile")
         filecache.getAllFromJson(fileName: "jsonfile")
+        
         updateListIsNotDone()
         updateAll()
+        
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(titleLabel)
         
