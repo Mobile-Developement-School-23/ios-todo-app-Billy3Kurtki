@@ -1,4 +1,5 @@
 import Foundation
+import SQLite
 
 enum Importance: String, Decodable {
     case unimportant = "low"
@@ -26,7 +27,7 @@ struct TodoItem: Equatable, Decodable {
     }
     
     init(id: String = UUID().uuidString, text: String, importance: Importance, deadline: Date? = nil,
-         isDone: Bool = false, createAt: Date = Date(), dateEdit: Date? = nil, color: String? = nil, lastUpdatedBy: String) {
+         isDone: Bool = false, createAt: Date = Date(), dateEdit: Date? = nil, color: String? = "FFFFFF", lastUpdatedBy: String) {
         self.id = id
         self.text = text
         self.importance = importance
@@ -46,13 +47,11 @@ extension TodoItem {
               let text = json["text"] as? String,
               let isDone = json["isDone"] as? Bool,
               let createAt = json["createAt"] as? Int,
-              let color = json["color"] as? String,
               let lastUpdatedBy = json["lastUpdatedBy"] as? String else { return nil }
         
         let importance = Importance(rawValue: (json["importance"] as? Importance.RawValue ?? Importance.ordinary.rawValue)) ?? .ordinary
         let deadline = (json["deadline"] as? Int)?.date
         let dateEdit = (json["dateEdit"] as? Int)?.date
-        
         
         let item: TodoItem = TodoItem(
             id: id,
@@ -62,7 +61,7 @@ extension TodoItem {
             isDone: isDone,
             createAt: createAt.date,
             dateEdit: dateEdit,
-            color: color,
+            color: json["color"] as? String ?? nil,
             lastUpdatedBy: lastUpdatedBy
         )
         return item
@@ -82,6 +81,9 @@ extension TodoItem {
         toDoItem["createAt"] = createAt.unixTimestamp
         if let dateEdit = dateEdit {
             toDoItem["dateEdit"] = dateEdit.unixTimestamp
+        }
+        if let color = color {
+            toDoItem["color"] = color
         }
         toDoItem["lastUpdatedBy"] = lastUpdatedBy
         
@@ -160,6 +162,35 @@ extension TodoItem {
         return toDoItem
     }
     
+    static func parseSQL(_ item: Any) -> TodoItem? {
+        guard let item = item as? Row,
+              let _importance = item[ExpressionsItemTable.importance] as? String,
+              let _isDone = item[ExpressionsItemTable.isDone] as? Int else { return nil }
+        var isDone: Bool
+        if _isDone as? Int == 0 {
+            isDone = false
+        }
+        else if _isDone == 1 {
+            isDone = true
+        }
+        else {
+            return nil
+        }
+        let importance = Importance(rawValue: (_importance as? Importance.RawValue ?? Importance.ordinary.rawValue)) ?? .ordinary
+        let tempItem: TodoItem = TodoItem(
+            id: item[ExpressionsItemTable.id],
+            text: item[ExpressionsItemTable.text],
+            importance: importance,
+            deadline: item[ExpressionsItemTable.deadline]?.date,
+            isDone: isDone,
+            createAt: item[ExpressionsItemTable.createAt].date,
+            dateEdit: item[ExpressionsItemTable.dateEdit]?.date,
+            color: item[ExpressionsItemTable.color],
+            lastUpdatedBy: item[ExpressionsItemTable.lastUpdatedBy]
+        )
+        
+        return tempItem
+    }
 }
 
 typealias UnixTimestamp = Int
