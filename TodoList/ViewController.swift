@@ -95,19 +95,21 @@ class ViewController: UIViewController {
         fileLogger.logFileManager.maximumNumberOfLogFiles = 7
         DDLog.add(fileLogger)
         
-        filecache.addItem(todoItem1)
-        filecache.addItem(todoItem2)
-        filecache.addItem(todoItem3)
-        filecache.addItem(todoItem4)
-        filecache.addItem(todoItem5)
-        filecache.addItem(todoItem6)
-        filecache.addItem(todoItem7)
-        filecache.addItem(todoItem8)
-        filecache.addItem(todoItem9)
-        filecache.addItem(todoItem10)
-        filecache.addItem(todoItem11)
-        filecache.saveAllJsonFile(fileName: "jsonfile")
-        filecache.getAllFromJson(fileName: "jsonfile")
+//        filecache.addItem(todoItem1)
+//        filecache.addItem(todoItem2)
+//        filecache.addItem(todoItem3)
+//        filecache.addItem(todoItem4)
+//        filecache.addItem(todoItem5)
+//        filecache.addItem(todoItem6)
+//        filecache.addItem(todoItem7)
+//        filecache.addItem(todoItem8)
+//        filecache.addItem(todoItem9)
+//        filecache.addItem(todoItem10)
+//        filecache.addItem(todoItem11)
+//        filecache.saveAllJsonFile(fileName: "jsonfile")
+//        filecache.getAllFromJson(fileName: "jsonfile")
+        filecache.setConnection()
+        filecache.loadListSQL()
         
         updateListIsNotDone()
         updateAll()
@@ -190,8 +192,10 @@ class ViewController: UIViewController {
     }
     
     func updateData() {
+        filecache.loadListSQL()
         updateListIsNotDone()
         updateAll()
+        doneTasksLabel.text = "Выполнено - \(filecache.toDoList.filter({$0.isDone == true}).count)"
         tableView.reloadData()
     }
 }
@@ -445,9 +449,9 @@ extension ViewController: UITableViewDataSource {
                 dateEdit: item.dateEdit,
                 lastUpdatedBy: item.lastUpdatedBy
             )
-            self.filecache.addItem(todoItem)
-            self.updateListIsNotDone()
-            self.updateAll()
+//            self.filecache.addItem(todoItem)
+            self.filecache.updateItemSQL(todoItem)
+            self.updateData()
             tableView.reloadData()
             self.countDone = self.filecache.toDoList.filter({$0.isDone == true}).count
             self.doneTasksLabel.text = "Выполнено - \(self.countDone)"
@@ -463,12 +467,14 @@ extension ViewController: UITableViewDataSource {
         let deleteAction = UIContextualAction(style: .normal, title: "") { (action, view, bool) in
             if !self.flag {
                 let id = self.listIsNotDone[indexPath.row].id
-                self.filecache.deleteItem(id)
+//                self.filecache.deleteItem(id)
+                self.filecache.deleteItemSQL(id)
                 self.updateData()
             }
             else {
                 let id = self.listAll[indexPath.row].id
-                self.filecache.deleteItem(id)
+//                self.filecache.deleteItem(id)
+                self.filecache.deleteItemSQL(id)
                 self.updateData()
             }
             

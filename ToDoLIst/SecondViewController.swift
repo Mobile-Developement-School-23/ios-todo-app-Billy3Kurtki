@@ -9,8 +9,6 @@ import UIKit
 import CocoaLumberjackSwift
 
 class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCellDelegate {
-    
-    
     var item: TodoItem?
     var viewContoller: ViewController
     var networkService: DefaultNetworkingService
@@ -224,7 +222,20 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
 //        if switcherCell.dateLabel.text != "" {
 //            deadline = Date(switcherCell.dateLabel.text!)
 //        }
-        return TodoItem(id: item!.id,text: text, importance: importance, lastUpdatedBy: lastUpdatedBy)
+        if let item = item {
+            return TodoItem(id: item.id,
+                            text: text,
+                            importance: importance,
+                            deadline: item.deadline,
+                            isDone: item.isDone,
+                            createAt: item.createAt,
+                            dateEdit: item.dateEdit,
+                            color: item.color,
+                            lastUpdatedBy: lastUpdatedBy)
+        }
+        else {
+            return TodoItem(text: text, importance: importance, lastUpdatedBy: lastUpdatedBy)
+        }
     }
     
     @objc func saveButtonAction(_ sender: Any) {
@@ -247,9 +258,11 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
 //
 //        }
 //        viewContoller.filecache.addItem(onTapSaveButton())
-        Task {
-            try await DefaultNetworkingService.addItem(onTapSaveButton())
-        }
+//        Task {
+//            try await DefaultNetworkingService.addItem(onTapSaveButton())
+//        }
+        
+        viewContoller.filecache.updateItemSQL(onTapSaveButton())
         viewContoller.updateData()
         dismiss(animated: true)
 //        alertController.addAction(alertAction)
@@ -260,10 +273,10 @@ class SecondViewContoller: UIViewController, UITextViewDelegate, DateSwitcherCel
     @objc func deleteButtonAction(_ sender: Any) {
         if let item = item {
 //            viewContoller.filecache.deleteItem(item.id)
-            Task {
-                try await DefaultNetworkingService.deleteItem(item.id)
-            }
-            
+//            Task {
+//                try await DefaultNetworkingService.deleteItem(item.id)
+//            }
+            viewContoller.filecache.deleteItemSQL(item.id)
             viewContoller.updateData()
             DDLogInfo("Удаление прошло успешно!")
             dismiss(animated: true)
